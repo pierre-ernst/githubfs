@@ -18,31 +18,60 @@
  */
 package fr.gnodet.githubfs;
 
-import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GitHubFileSystemProviderTest {
 
-    @Test
-    public void testPathsGetAndDirectoryStream() throws IOException {
-        Path root = Paths.get(URI.create("github:apache/karaf?revision=master!/"));
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(root)) {
-            for (Path p : stream) {
-                if (Files.isRegularFile(p)) {
-                    System.out.println(p.toString());
-                    Files.readAllBytes(p);
-                } else {
-                    System.out.println(p.toString() + "/");
-                }
-            }
-        }
+	@Test
+	public void testPathsGetAndDirectoryStream() {
+		try {
+			Path root = Paths
+					.get(URI.create("github:gnodet/githubfs?revision=6cf9c81aa9dea56e4b08fb3d199c1106cea0686d!/"));
+			SortedSet<String> expected = new TreeSet<>();
+			expected.add("src");
+			expected.add(".gitignore");
+			expected.add("README.md");
+			expected.add("pom.xml");
 
-    }
+			SortedSet<String> retrieved = new TreeSet<>();
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(root)) {
+				for (Path p : stream) {
+					retrieved.add(p.toString());
+				}
+			}
 
+			assertEquals(expected, retrieved);
+
+		} catch (Exception ex) {
+			ex.printStackTrace(System.err);
+			fail(ex.getMessage());
+		}
+	}
+
+	@Test
+	public void testFileRead() {
+		try {
+			Path file = Paths.get(
+					URI.create("github:gnodet/githubfs?revision=6cf9c81aa9dea56e4b08fb3d199c1106cea0686d!/README.md"));
+			long expected = (long) Math.ceil(1.24 * 1024); // 1.24 KB
+			long read = Files.readAllBytes(file).length;
+
+			assertEquals(expected, read);
+
+		} catch (Exception ex) {
+			ex.printStackTrace(System.err);
+			fail(ex.getMessage());
+		}
+	}
 }

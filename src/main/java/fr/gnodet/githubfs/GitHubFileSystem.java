@@ -45,18 +45,18 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-
-import javax.xml.bind.DatatypeConverter;
 
 import fr.gnodet.githubfs.json.JsonReader;
 
@@ -150,7 +150,7 @@ public class GitHubFileSystem extends FileSystem {
         } else {
             if (password != null) {
                 String authorization = (login + ':' + password);
-                encodedAuthorization = "Basic " + DatatypeConverter.printBase64Binary(authorization.getBytes());
+                encodedAuthorization = "Basic " + Base64.getEncoder().encodeToString(authorization.getBytes());
             }
         }
         this.fileSystemProvider = fileSystemProvider;
@@ -348,13 +348,15 @@ public class GitHubFileSystem extends FileSystem {
         throw new UnsupportedOperationException();
     }
 
-    public InputStream newInputStream(Path path, OpenOption[] options) throws IOException {
+    InputStream newInputStream(Path path, OpenOption[] options) throws IOException {
         Object content = loadContent(path.toAbsolutePath().toString());
         if (content instanceof List) {
             throw new IOException("Is a directory");
         }
         String base64 = ((Map<String, String>) content).get("content");
-        byte[] data = DatatypeConverter.parseBase64Binary(base64);
+        Objects.requireNonNull(base64,"missing 'content'");
+        byte[] data = Base64.getDecoder().decode(base64.replace("\n","").getBytes(StandardCharsets.UTF_8));
+     
         return new ByteArrayInputStream(data);
     }
 
@@ -393,13 +395,15 @@ public class GitHubFileSystem extends FileSystem {
         };
     }
 
-    public <A extends BasicFileAttributes> SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
+    <A extends BasicFileAttributes> SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         Object content = loadContent(path.toAbsolutePath().toString());
         if (content instanceof List) {
             throw new IOException("Is a directory");
         }
         String base64 = ((Map<String, String>) content).get("content");
-        final byte[] data = DatatypeConverter.parseBase64Binary(base64);
+        Objects.requireNonNull(base64,"missing 'content'");
+        final byte[] data = Base64.getDecoder().decode(base64.replace("\n","").getBytes(StandardCharsets.UTF_8));
+        
         return new SeekableByteChannel() {
             long position;
 
@@ -448,7 +452,7 @@ public class GitHubFileSystem extends FileSystem {
         };
     }
 
-    public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> clazz, LinkOption... options) throws IOException {
+    <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> clazz, LinkOption... options) throws IOException {
         if (clazz != BasicFileAttributes.class) {
             throw new UnsupportedOperationException();
         }
