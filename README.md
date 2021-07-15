@@ -29,3 +29,11 @@ Where
 
 The `login`, `password` and `oauth` token will also be loaded as defaults from the `~/.github` property file if it exists.
 If a `login` has been provided in the uri, the `login` in the configuration file must match.
+
+##Using OWASP Zap proxy##
+```
+$ cp $JAVA_HOME/lib/security/cacerts ./cacerts.ks
+$ keytool -import -alias zap -keystore cacerts.ks -file owasp_zap_root_ca.cer 
+$ java -Djavax.net.ssl.trustStore=./cacerts.ks -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8080 ...
+```
+
