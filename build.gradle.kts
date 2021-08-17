@@ -2,6 +2,9 @@ plugins {
     java
 }
 
+group = "com.github.pierre_ernst"
+version = "0.0.3-PERNST"
+
 repositories {
     mavenCentral()
 }
@@ -13,7 +16,3 @@ dependencies {
     
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
 }
-
-group = "fr.gnodet.githubfs"
-version = "0.0.1-PERNST"
-description = "GitHub File System"
