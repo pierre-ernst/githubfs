@@ -2,6 +2,9 @@ plugins {
     java
 }
 
+group = "com.github.pierre_ernst"
+version = "0.0.2-PERNST"
+
 repositories {
     mavenCentral()
 }
