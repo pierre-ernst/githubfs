@@ -54,14 +54,13 @@ public class ModelTest {
 	public void testRefs() {
 		try {
 			GitHub apiClient = new GitHubBuilder().build();
-			GHRepository repo = apiClient.getUser("package-url").getRepository("packageurl-java");
+			GHRepository repo = apiClient.getUser("pierre-ernst").getRepository("githubfs");
 			
-			GitHubFileSystem fs = (GitHubFileSystem) Paths.get(URI.create("github:gnodet/githubfs!/")).getFileSystem();
+			GitHubFileSystem fs = (GitHubFileSystem) Paths.get(URI.create("github:pierre-ernst/githubfs!/")).getFileSystem();
 			
-			assertEquals("pkg:github/package-url/packageurl-java@refs%2Fheads%2Fmaster#pom.xml",ContentFactory.getContent(repo, "refs/heads/master", new GitHubPath(fs,"pom.xml")).canonicalize());
-			assertEquals("pkg:github/package-url/packageurl-java@refs%2Fheads%2Fmaster#pom.xml",ContentFactory.getContent(repo, new GitHubPath(fs,"pom.xml")).canonicalize());
-			assertEquals("pkg:github/package-url/packageurl-java@refs%2Ftags%2Fpackageurl-java-1.0.0#pom.xml",ContentFactory.getContent(repo, "refs/tags/packageurl-java-1.0.0", new GitHubPath(fs,"pom.xml")).canonicalize());
-			assertEquals("pkg:github/package-url/packageurl-java@refs%2Fpull%2F2%2Fhead#pom.xml",ContentFactory.getContent(repo, "refs/pull/2/head",new GitHubPath(fs,"pom.xml")).canonicalize());
+			assertEquals("pkg:github/pierre-ernst/githubfs@refs%2Fheads%2Fmaster#README.md",ContentFactory.getContent(repo, "refs/heads/master", new GitHubPath(fs,"README.md")).canonicalize());
+			assertEquals("pkg:github/pierre-ernst/githubfs@refs%2Fheads%2Fmaster#README.md",ContentFactory.getContent(repo, new GitHubPath(fs,"README.md")).canonicalize());
+			assertEquals("pkg:github/pierre-ernst/githubfs@refs%2Ftags%2F0.0.1-PERNST#README.md",ContentFactory.getContent(repo, "refs/tags/0.0.1-PERNST", new GitHubPath(fs,"README.md")).canonicalize());
 			
 				
 			try {
